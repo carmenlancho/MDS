@@ -1,0 +1,76 @@
+---
+title: "Análisis exploratorio de los datos Iris"
+author: "Máster Data Science"
+date: "`r format(Sys.Date(), '%d de %B de %Y')`"
+header-includes:
+- \usepackage{fancyhdr}
+- \pagestyle{fancy}
+- \fancyhead[L]{Fundamentos de Análisis de Datos}
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+# aquí ponemos los paquetes que vayamos necesitando
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Conjunto de datos
+
+Trabajaremos con el conjunto de datos **Iris** de Fisher que contiene información sobre 3 clases de flores: *setosa*, *virgínica* y *versicolor*. Estos datos ya están disponibles en R por lo que simplemente hay que cargarlos:
+```{r iris}
+library(datasets)
+data(iris)
+```
+Visualizamos las primeras líneas del conjunto de datos mediante el comando *head()* de R:
+
+```{r iris_visu, echo=FALSE}
+# con echo=FALSE no se muestra el codigo, solo el output
+head(iris)
+```
+
+Está formado por un total de `r nrow(iris)` datos y `r ncol(iris)` variables:
+
+ * Species: setosa, virginica, versicolor
+ * Sepal.Length: longitud en cm del sépalo
+ * Sepal.Width: anchura en cm del sépalo
+ * Petal.Length: longitud en cm del pétalo
+ * Petal.Width: anchura en cm del pétalo
+ 
+De este modo, el conjunto de datos dispone de una variable categórica (*Species*) que toma 3 posibles valores y de 4 variables continuas (*Sepal.Length*, *Sepal.Width*, *Petal.Length* y *Petal.Width*).
+
+## Análisis univariante
+
+Comenzamos realizando un análisis univariante de los datos. Esto nos permitirá saber el rango de valores de cada variable, sus valores medios, su dispersión, si tienen datos faltantes, valores atípicos, etc. 
+
+Lo primero es verificar que las variables están guardadas en el formato correspondiente, es decir, que las variables categóricas están guardadas como categóricas y las continuas como continuas. Esto se comprueba con mediante el siguiente comando de R:
+
+```{r tipo_datos}
+str(iris)
+```
+
+Vemos que *Sepal.Length*, *Sepal.Width*, *Petal.Length* y *Petal.Width* aparecen como variables numérica y *Species* como un factor (variable categórica con 3 niveles). De no ser así, habría que guardarlas con el formato correspondiente.
+
+<!-- Usando levels(iris$Species) sabemos los niveles de una variable categórica -->
+
+Para tener un resumen rápido de las variables usamos la función *summary()*:
+
+```{r summary, echo=FALSE}
+summary(iris)
+```
+
+El resumen indica que hay 50 datos de cada tipo de flor
+
+HACER LO DE LOS NA
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
