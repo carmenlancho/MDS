@@ -10,17 +10,29 @@ output:
   pdf_document: default
   html_document: default
 ---
+\begin{center}
+\includegraphics[width=100pt]{logotipo_MDS.png}
+\vspace{0.5cm}
 
-```{r setup, include=FALSE}
+\includegraphics[width=100pt]{DSLab_logo_1.png}
+\end{center}
+
+
+```{r setup, include=FALSE,message = FALSE,warning = FALSE}
 # aquí ponemos los paquetes que vayamos necesitando
 knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(datasets)
+library(car)
+library(ggpubr)
+library(ggcorrplot)
+library(GGally)
 ```
 
 ## Conjunto de datos
 
 Trabajaremos con el conjunto de datos **Iris** de Fisher que contiene información sobre 3 clases de flores: *setosa*, *virgínica* y *versicolor*. Estos datos ya están disponibles en R por lo que simplemente hay que cargarlos:
 ```{r iris}
-library(datasets)
 data(iris)
 ```
 Visualizamos las primeras líneas del conjunto de datos mediante el comando *head()* de R:
@@ -60,17 +72,103 @@ Para tener un resumen rápido de las variables usamos la función *summary()*:
 summary(iris)
 ```
 
-El resumen indica que hay 50 datos de cada tipo de flor
+El resumen indica que hay 50 datos de cada tipo de flor. Las variables de longitud toman valores mayores que las de anchura y, en ambos casos, los sépalos se mueven en unos valores en general más altos que los pétalos. Por ejemplo, tanto la media y la mediana de *Sepal.Length* son mayores que la media y la mediana de *Petal.Length*. Lo mismo ocurre con *Sepal.Width* y *Petal.Width*. En las variables sobre los sépalos sucede que la media y la mediana están próximas, esto significa que su distribución es bastante simétrica. Los casos menos simétricos serían los de las variables de pétalos puesto que es donde más difieren la media y la mediana.
 
-HACER LO DE LOS NA
+Vemos además que ninguna de las variables cuenta con datos faltantes puesto que no aparecen en el summary. Veamos un ejemplo de cómo aparecería en el caso de haber NA's:
 
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r summary_na, echo=FALSE}
+var_na <- iris$Sepal.Length
+var_na <- c(var_na,NA)
+summary(var_na)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Analizamos ahora las variables desde el punto de vista gráfico. Como la variable categórica *Species* tiene 50 datos en cada clase, realizar un gráfico resulta innecesario. En este caso lo mostramos para tener un ejemplo.
+
+```{r barplot, echo=FALSE,fig.width=5.5,fig.height=3.5}
+# Barplot
+ggplot(data=iris, aes(x=Species, fill = Species)) + 
+geom_bar() + 
+  xlab("Species") +  
+  ylab("Conteo") + 
+  ggtitle("Diagrama de barras de Species") + theme_linedraw()
+```
+
+Mostramos ahora el boxplot para cada variable continua.
+
+```{r boxplot4, echo=FALSE,fig.width=7,fig.height=5}
+# Boxplot variables continuas
+boxplot(iris[,1:4], main = 'Boxplots variables continuas',
+        ylab = "cm",col = 'ghostwhite')
+```
+
+En este caso, hemos pintado los 4 boxplots en el mismo gráfico porque las 4 variables continuas se miden en centímetros y porque el rango de valores de las 4 no es muy dispar. Gracias al gráfico confirmamos que las distribuciones más simétricas son las de las variables de los sépalos. La longitud de pétalo es la que mayor variabilidad de valores muestra y la anchura de pétalos contiene algunos valores atípicos. Para estudiar con más detalle dichos atípicos, hacemos un boxplot independiente de dicha variable en el que identificamos esos puntos.
+
+```{r boxplot_id, echo=FALSE,fig.width=6,fig.height=5}
+# Boxplot de la librería car
+Boxplot(~Sepal.Width, data = iris,main = 'Boxplot Sepal.Width',
+        ylab = "cm",col = 'ghostwhite')
+```
+
+Obtenemos ahora los histogramas de las 4 variables continuas.
+
+```{r histogramas, echo=FALSE,message = FALSE,warning = FALSE}
+# Histogramas
+
+
+hist_sepal_length <- ggplot(data=iris,aes(x=Sepal.Length)) + geom_histogram(binwidth=0.4,fill="lavender", color="lavenderblush3",alpha = 0.9) +theme_minimal()
+
+hist_sepal_width <- ggplot(data=iris,aes(x=Sepal.Width)) + geom_histogram(binwidth=0.3,fill="lavender", color="lavenderblush3",alpha = 0.9) +theme_minimal()
+
+hist_petal_length <- ggplot(data=iris,aes(x=Petal.Length)) + geom_histogram(binwidth=0.5,fill="lavender", color="lavenderblush3",alpha = 0.9) +theme_minimal()
+
+hist_petal_width <- ggplot(data=iris,aes(x=Petal.Width)) + geom_histogram(binwidth=0.3,fill="lavender", color="lavenderblush3",alpha = 0.9) +theme_minimal()
+
+hist_plot <- ggarrange(hist_sepal_length, hist_sepal_width, hist_petal_length,
+          hist_petal_width,
+          #labels = c("A", "B", "C","D"),
+          ncol = 2, nrow = 2)
+annotate_figure(hist_plot, top = text_grob("Histogramas", 
+               color = "black", face = "bold", size = 14))
+```
+
+Los histogramas muestran que la variable más simétrica es *Sepal.Width*, con media y mediana en torno al 3 y unas colas similares a ambos lados. *Sepal.Length* tiene mayor concentración de valores a la izquierza de la media, es decir, hay menos observaciones con longitud de sépalo mayor que 6 que menor. Los histogramas sobre las variables sobre los pétalos muestran que hay un número importante de flores (más de 40) con valores bajitos de longitud y anchura de pétalo y el resto de flores ya se concentran en valores más altos (una longitud mayor de 3 y una anchura en torno a 1 y mayor que 1).
+
+
+
+## Análisis multivariante
+
+Hacemos un gráfico de correlaciones para estudiar la relación linear existente entre las variables. Ambos gráficos muestran la misma información, la diferencia es que en el de la derecha se ha eliminado la información superflua puesto que la matriz de correlaciones es simétrica. Además, en el gráfico de la derecha se ha añadido una etiqueta con el valor de la correlación de Pearson para tener más información. Vemos que *Petal.Length* y *Petal.Width* están muy correladas y *Sepal.Length* y *Sepal.Width* tienen una correlación prácticamente nula. Las variables de longitudes también muestran una correlación positiva alta (*Petal.Length* y *Sepal.Length*), esto es, cuando una crece la otra también.  La anchura de pétalo y la longitud del sépalo también tienen correlación positiva alta. *Sepal.Width* es la variable que menor correlación muestra con el resto.
+
+```{r corrplot, echo=FALSE}
+corr <- cor(iris[,1:4])
+corr1 <- ggcorrplot(corr)
+corr2 <- ggcorrplot(corr,type = "lower", lab=TRUE)
+
+corr_plot <- ggarrange(corr1, corr2, 
+          ncol = 2, nrow = 1)
+annotate_figure(corr_plot, top = text_grob("Gráfico de correlaciones", 
+               color = "black", face = "bold", size = 14))
+```
+
+Usando la función *ggpairs()* de ggplot podemos obtener un cuadro general con diversos gráficos multivariantes. En particular, contiene gráficos boxplots para cada variable continua diferenciando por clases, diagramas de dispersión con todos los cruces de variables continuas diferenciando por clase, gráficos de densidad e histogramas también distinguiendo por clases y los valores de las correlaciones filtrando y sin filtrar por clase. Este cuadro revela que las flores más parecidas entre sí son versicolor y virgínica puesto que en todos los caos muestran gráficos más similares y comparten valores. Como reflejan los diagramas de dispersión, setosa está claramente más separada y su identificación es más sencilla.
+
+```{r ggpairs, echo=FALSE,fig.width=12,fig.height=15,message = FALSE,warning = FALSE}
+ggpairs(iris,ggplot2::aes(colour=Species))  +theme_minimal()
+```
+
+A modo de ejemplo, ampliamos uno de los gráficos de dispersión y le añadimos líneas de densidad:
+
+```{r densi, echo=FALSE}
+
+p <- ggplot(iris, aes(x = Sepal.Width, y = Sepal.Length,color=Species)) +
+ geom_point() 
+
+# contour lines
+p + geom_density_2d() +theme_minimal() +ggtitle("Gráfico de dispersión con líneas de densidad")
+```
+
+
+
+
+
+
