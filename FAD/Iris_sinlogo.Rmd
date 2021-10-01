@@ -1,21 +1,15 @@
 ---
 title: "Análisis exploratorio de los datos Iris"
-author: "Máster Data Science"
+author: "Máster Data Science - Universidad Rey Juan Carlos"
 date: "`r format(Sys.Date(), '%d de %B de %Y')`"
 header-includes:
 - \usepackage{fancyhdr}
 - \pagestyle{fancy}
 - \fancyhead[L]{Fundamentos de Análisis de Datos}
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
-\begin{center}
-\includegraphics[width=100pt]{logotipo_MDS.png}
-\vspace{0.5cm}
-
-\includegraphics[width=100pt]{DSLab_logo_1.png}
-\end{center}
 
 
 ```{r setup, include=FALSE,message = FALSE,warning = FALSE}
