@@ -7,8 +7,15 @@ header-includes:
 - \pagestyle{fancy}
 - \fancyhead[L]{Fundamentos de Análisis de Datos}
 output:
-  html_document: default
-  pdf_document: default
+  html_document:
+    number_sections: yes
+    theme: flatly
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
 ---
 
 
@@ -31,13 +38,13 @@ library(ggcorrplot)
 library(GGally)
 ```
 
-## Conjunto de datos
+# Conjunto de datos
 
 Trabajaremos con el conjunto de datos **Iris** de Fisher que contiene información sobre 3 clases de flores: *setosa*, *virgínica* y *versicolor*. Estos datos ya están disponibles en R por lo que simplemente hay que cargarlos:
 ```{r iris}
 data(iris)
 ```
-Visualizamos las primeras líneas del conjunto de datos mediante el comando *head()* de R:
+Visualizamos las primeras líneas del conjunto de datos mediante el comando `head()` de R:
 
 ```{r iris_visu, echo=FALSE}
 # con echo=FALSE no se muestra el codigo, solo el output
@@ -54,7 +61,7 @@ Está formado por un total de `r nrow(iris)` datos y `r ncol(iris)` variables:
  
 De este modo, el conjunto de datos dispone de una variable categórica (*Species*) que toma 3 posibles valores y de 4 variables continuas (*Sepal.Length*, *Sepal.Width*, *Petal.Length* y *Petal.Width*).
 
-## Análisis univariante
+# Análisis univariante
 
 Comenzamos realizando un análisis univariante de los datos. Esto nos permitirá saber el rango de valores de cada variable, sus valores medios, su dispersión, si tienen datos faltantes, valores atípicos, etc. 
 
@@ -68,7 +75,7 @@ Vemos que *Sepal.Length*, *Sepal.Width*, *Petal.Length* y *Petal.Width* aparecen
 
 <!-- Usando levels(iris$Species) sabemos los niveles de una variable categórica -->
 
-Para tener un resumen rápido de las variables usamos la función *summary()*:
+Para tener un resumen rápido de las variables usamos la función `summary()`:
 
 ```{r summary, echo=FALSE}
 summary(iris)
@@ -137,7 +144,7 @@ Los histogramas muestran que la variable más simétrica es *Sepal.Width*, con m
 
 
 
-## Análisis multivariante
+# Análisis multivariante
 
 Hacemos un gráfico de correlaciones para estudiar la relación linear existente entre las variables. Ambos gráficos muestran la misma información, la diferencia es que en el de la derecha se ha eliminado la información superflua puesto que la matriz de correlaciones es simétrica. Además, en el gráfico de la derecha se ha añadido una etiqueta con el valor de la correlación de Pearson para tener más información. Vemos que *Petal.Length* y *Petal.Width* están muy correladas y *Sepal.Length* y *Sepal.Width* tienen una correlación prácticamente nula. Las variables de longitudes también muestran una correlación positiva alta (*Petal.Length* y *Sepal.Length*), esto es, cuando una crece la otra también.  La anchura de pétalo y la longitud del sépalo también tienen correlación positiva alta. *Sepal.Width* es la variable que menor correlación muestra con el resto.
 
@@ -152,7 +159,7 @@ annotate_figure(corr_plot, top = text_grob("Gráfico de correlaciones",
                color = "black", face = "bold", size = 14))
 ```
 
-Usando la función *ggpairs()* de ggplot podemos obtener un cuadro general con diversos gráficos multivariantes. En particular, contiene gráficos boxplots para cada variable continua diferenciando por clases, diagramas de dispersión con todos los cruces de variables continuas diferenciando por clase, gráficos de densidad e histogramas también distinguiendo por clases y los valores de las correlaciones filtrando y sin filtrar por clase. Este cuadro revela que las flores más parecidas entre sí son versicolor y virgínica puesto que en todos los caos muestran gráficos más similares y comparten valores. Como reflejan los diagramas de dispersión, setosa está claramente más separada y su identificación es más sencilla.
+Usando la función `ggpairs()` de ggplot podemos obtener un cuadro general con diversos gráficos multivariantes. En particular, contiene gráficos boxplots para cada variable continua diferenciando por clases, diagramas de dispersión con todos los cruces de variables continuas diferenciando por clase, gráficos de densidad e histogramas también distinguiendo por clases y los valores de las correlaciones filtrando y sin filtrar por clase. Este cuadro revela que las flores más parecidas entre sí son versicolor y virgínica puesto que en todos los caos muestran gráficos más similares y comparten valores. Como reflejan los diagramas de dispersión, setosa está claramente más separada y su identificación es más sencilla.
 
 ```{r ggpairs, echo=FALSE,fig.width=12,fig.height=15,message = FALSE,warning = FALSE}
 ggpairs(iris,ggplot2::aes(colour=Species))  +theme_minimal()
