@@ -6,3 +6,4 @@ library(gitcreds)
 
 credentials::set_github_pat()
 gitcreds::gitcreds_set()
+
