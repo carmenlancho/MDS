@@ -7,3 +7,10 @@ library(gitcreds)
 credentials::set_github_pat()
 gitcreds::gitcreds_set()
 
+
+## paquetes
+install.packages("tinytex")
+tinytex::install_tinytex()
+
+
+
